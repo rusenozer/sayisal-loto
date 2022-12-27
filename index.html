@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <h3>Sayısal Loto Oyunu</h3>
+    <p>Aşağıdaki alanlara tahminlerinizi giriniz;</p>
+    <form onsubmit="return tahmingir(event)">
+        <input type="number" name="sayi1" id="sayi1" class="tahminler"   onblur="checktahminler(event)">
+        <input type="number" name="sayi2" id="sayi2" class="tahminler"   onblur="checktahminler(event)">
+        <input type="number" name="sayi3" id="sayi3" class="tahminler"   onblur="checktahminler(event)">
+        <input type="number" name="sayi4" id="sayi4" class="tahminler"   onblur="checktahminler(event)">
+        <input type="number" name="sayi5" id="sayi5" class="tahminler"   onblur="checktahminler(event)">
+        <input type="number" name="sayi6" id="sayi6" class="tahminler"   onblur="checktahminler(event)">
+        <button id="submitBtn">Tahmin Gir</button>
+        <p id="tahmin-mesaj"></p>
+        <hr>
+    </form>
+    
+    <button id="kuraBtn" onclick="kuracek()" >Kurayı Çek</button>
+    <br>
+    <br>
+    <div>
+        <input type="number" id="loto1" class="loto" disabled>
+        <input type="number" id="loto2" class="loto" disabled>
+        <input type="number" id="loto3" class="loto" disabled>
+        <input type="number" id="loto4" class="loto"disabled>
+        <input type="number" id="loto5" class="loto" disabled>
+        <input type="number" id="loto6" class="loto" disabled>
+    </div>
+    <p id="loto-sonuc"></p>
+    <p id="adet"></p>
+
+<script>
+
+    const mesaj = document.getElementById('tahmin-mesaj');
+    const inputs = document.querySelectorAll(".tahminler")
+    const sbumitBtn = document.querySelector('#submitBtn')
+    const loto_numbers_inputs = document.querySelectorAll('.loto');
+    const kuraBtn = document.getElementById('kuraBtn')
+    const loto_sonuc =document.getElementById('loto-sonuc');
+    const adet = document.getElementById('adet');
+    const tahminler = []
+
+    function tahmingir(e){
+        e.preventDefault();
+       
+        for (const tahmin of tahminler) {
+           if(!gecerliSayilarMi(tahmin)) {
+            alert("1 ile 49 arasında sayı giriniz")
+            return // fonksyiondan çıkarak aşağıdaki bloğa girmesini engelelr
+          }   
+       }
+       
+       if(tahminler.length){
+            tahminler.sort(function(a, b){return a - b});
+            
+            sayilariInputlaraEkle(tahminler,inputs)
+      
+            mesaj.innerHTML = "Tahminler girildi"
+            sbumitBtn.disabled=true;
+            kuraBtn.disabled=false;
+      
+        }    
+    }
+
+   
+
+    function checktahminler(e){
+
+        const name = e.target.name
+        const value = Number(e.target.value);
+        
+        const same = tahminler.findIndex(number=>number===value);
+        if(same!==-1 && value!==0){
+           alert("Aynı tahmin bir kez girilebilir")
+           e.target.value="" 
+        }
+
+        //tıklanan inputun indeksini bulup tahminler dizisindeki ilgili indekse değeri ekler.
+        tahminleriYerlestir(name,value)
+
+    }
+    function kuracek(){
+        const loto_numbers = kuraSonucu()
+
+        loto_numbers.sort((a,b)=>a-b)
+      
+        sayilariInputlaraEkle(loto_numbers,loto_numbers_inputs)
+
+        const bilinenler = loto_numbers.filter((number)=>{
+            return tahminler.includes(number)
+        })
+        
+        loto_sonuc.innerHTML = `Bilinen sayılar: ${bilinenler.join(',')}`
+        adet.innerHTML = `${bilinenler.length} adet sayı bildiniz.`
+
+      
+      
+    }
+   
+    //girilen değerin 1 ile 49 arasında olup olmadığını kontrol eder boolean değer döndürür.
+    function gecerliSayilarMi(tahmin){
+        return tahmin>=1 && tahmin<=49
+    }
+
+
+    //Bu fonksiyon degerler alanına gelen array elemanlarını input alanlarına(tahminler ve kura sonuçları) gönderir
+    function sayilariInputlaraEkle(degerler,inputs){
+     
+            degerler.forEach((deger,index) => {
+                inputs[index].value = deger        
+            });
+        
+       
+    }
+
+    function kuraSonucu(){
+        const loto_numbers = []
+        while(loto_numbers.length<6){
+            const random = Math.floor(Math.random()*49+1)
+            if(loto_numbers.includes(random)){
+                continue;
+            }
+            loto_numbers.push(random)
+        }
+
+        return loto_numbers;
+    }
+
+
+    function tahminleriYerlestir(name,value){
+        for(let i = 0; i<inputs.length;i++){
+
+                if(name===`sayi${i+1}`){
+                    
+                    tahminler[i] = value;
+                }
+            }
+    }
+
+</script>
+</body>
+</html>
